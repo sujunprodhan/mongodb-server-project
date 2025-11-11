@@ -22,6 +22,17 @@ async function run() {
     await client.connect();
     const db = client.db('smartband');
     const propertyCollection = db.collection('realagent');
+    const userCollection = db.collection('users')
+
+
+// user collection
+app.post('/users', async(req, res)=>{
+  const newUser = req.body
+  const result = await userCollection.insertOne(newUser)
+  res.send(result)
+})
+
+
 
     // get api and all product find and findOne
 
@@ -34,8 +45,8 @@ async function run() {
     // insert, insertOne
     app.get('/realagent/:id', async (req, res) => {
       const id = req.params.id;
-      const quary = new ObjectId(id);
-      const result = await propertyCollection.findOne({_id: quary})
+      const query = { _id: new ObjectId(id) };
+      const result = await propertyCollection.findOne(query);
       res.send(result);
     });
 
