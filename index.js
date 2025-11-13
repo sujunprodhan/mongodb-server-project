@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const port = 3000;
 
+
 require('dotenv').config();
 
 app.use(cors());
@@ -24,6 +25,7 @@ async function run() {
     const db = client.db('smartband');
     const propertyCollection = db.collection('realagent');
     const userCollection = db.collection('users');
+    const reviewCollection = db.collection('reviews');
 
     // user collection
     app.post('/users', async (req, res) => {
@@ -32,10 +34,42 @@ async function run() {
       res.send(result);
     });
 
+    // Review funtion
+    // Add review
+    app.post('/reviews', async (req, res) => {
+      const review = { ...req.body, createdAt: new Date() };
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
+
+    // Get reviews by property
+    app.get('/reviews/realagent/:id', async (req, res) => {
+      const propertyId = req.params.propertyId;
+      const reviews = await reviewCollection.find({ propertyId }).toArray();
+      res.send(reviews);
+    });
+
+    // Get reviews by user
+    app.get('/reviews/user/:email', async (req, res) => {
+      const email = req.params.email;
+      const reviews = await reviewCollection.find({ userEmail: email }).toArray();
+      res.send(reviews);
+    });
+
     // Add Property
     app.post('/realagent', async (req, res) => {
       const data = req.body;
       const result = await propertyCollection.insertOne(data);
+      res.send(result);
+    });
+
+    // udate propety
+    app.put('/realagent/:id', async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const update = { $set: data };
+      const query = { _id: new ObjectId(id) };
+      const result = await propertyCollection.updateOne(query, update);
       res.send(result);
     });
 
