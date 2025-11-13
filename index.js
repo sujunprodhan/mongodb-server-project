@@ -37,24 +37,28 @@ async function run() {
     // Review funtion
     // Add review
     app.post('/reviews', async (req, res) => {
-      const review = { ...req.body, createdAt: new Date() };
-      const result = await reviewCollection.insertOne(review);
+      const review = req.body; 
+      const result = await reviewCollection.insertOne({
+        ...review,
+        createdAt: new Date(),
+      });
       res.send(result);
     });
 
-    // Get reviews by property
-    app.get('/reviews/realagent/:id', async (req, res) => {
+    app.get('/reviews/:propertyId', async (req, res) => {
       const propertyId = req.params.propertyId;
-      const reviews = await reviewCollection.find({ propertyId }).toArray();
-      res.send(reviews);
+      const query = { propertyId: propertyId };
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get('/reviews', async (req, res) => {
+      const email = req.query.email
+      const query = { email: email };
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
     });
 
-    // Get reviews by user
-    app.get('/reviews/user/:email', async (req, res) => {
-      const email = req.params.email;
-      const reviews = await reviewCollection.find({ userEmail: email }).toArray();
-      res.send(reviews);
-    });
+
 
     // Add Property
     app.post('/realagent', async (req, res) => {
