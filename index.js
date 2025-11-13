@@ -3,8 +3,6 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const cors = require('cors');
 const port = 3000;
-
-
 require('dotenv').config();
 
 app.use(cors());
@@ -37,7 +35,7 @@ async function run() {
     // Review funtion
     // Add review
     app.post('/reviews', async (req, res) => {
-      const review = req.body; 
+      const review = req.body;
       const result = await reviewCollection.insertOne({
         ...review,
         createdAt: new Date(),
@@ -52,13 +50,11 @@ async function run() {
       res.send(result);
     });
     app.get('/reviews', async (req, res) => {
-      const email = req.query.email
+      const email = req.query.email;
       const query = { email: email };
       const result = await reviewCollection.find(query).toArray();
       res.send(result);
     });
-
-
 
     // Add Property
     app.post('/realagent', async (req, res) => {
@@ -76,12 +72,19 @@ async function run() {
       const result = await propertyCollection.updateOne(query, update);
       res.send(result);
     });
+    // Dlete Property
+    app.delete('/realagent/:id', async(req, res)=>{
+      const id = req.params.id;
+      const objectId = new ObjectId(id)
+      const filter = {_id: objectId}
+      const result= await propertyCollection.deleteOne(filter)
+      res.send(result)
+    });
 
     // latest product
     app.get('/latestproperty', async (req, res) => {
-      const cursor = propertyCollection.find().sort({ price: -1 }).limit(6);
-      const result = await cursor.toArray();
-      res.send(result);
+      const result = await propertyCollection.find().sort({ createdAt: 'desc' }).limit(6).toArray()
+     res.send(result)
     });
 
     // get api and all product find and findOne
